@@ -9,7 +9,9 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "autoprefixer": "^9.7.3",
     "core-js": "^3.4.4",
+    "d3": "^5.15.0",
     "vue": "^2.6.10",
     "vue-router": "^3.1.3"
   },
@@ -19,13 +21,18 @@
     "@vue/cli-plugin-router": "^4.1.0",
     "@vue/cli-plugin-unit-jest": "^4.1.0",
     "@vue/cli-service": "^4.1.0",
-    "@vue/eslint-config-prettier": "^5.0.0",
-    "@vue/test-utils": "1.0.0-beta.29",
+    "@vue/eslint-config-prettier": "^6.0.0",
+    "@vue/test-utils": "^1.0.0-beta.30",
     "babel-eslint": "^10.0.3",
-    "eslint": "^5.16.0",
+    "eslint": "^6.8.0",
     "eslint-plugin-prettier": "^3.1.1",
-    "eslint-plugin-vue": "^5.0.0",
+    "eslint-plugin-vue": "^6.1.2",
     "prettier": "^1.19.1",
+    "stylelint": "^12.0.1",
+    "stylelint-config-recommended": "^3.0.0",
+    "stylelint-config-standard": "^19.0.0",
+    "stylelint-order": "^4.0.0",
+    "stylelint-prettier": "^1.1.2",
     "vue-template-compiler": "^2.6.10"
   }
 }

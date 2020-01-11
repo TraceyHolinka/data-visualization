@@ -1,32 +1,42 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+    <div class="nav">
+      <RouterLink to="/">Home</RouterLink> |
+      <RouterLink to="/simple-hierarchy">Simple Hierarchy</RouterLink> |
+      <RouterLink to="/world-population">World Population</RouterLink>
     </div>
-    <router-view />
+    <router-view/>
   </div>
 </template>
 
 <style>
 #app {
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
 }
-
-#nav {
-  padding: 30px;
+body {
+  width: 100%;
+  min-height: 100vh;
 }
-
-#nav a {
+h1 {
+  margin-bottom: 0;
+  font-size: 30px;
+}
+h2 {
+  font-size: 20px;
+}
+.nav {
+  padding: 16px 0 8px;
+}
+.nav a {
+  font-size: 18px;
   font-weight: bold;
   color: #2c3e50;
 }
-
-#nav a.router-link-exact-active {
+.nav a.router-link-exact-active {
   color: #42b983;
 }
 </style>

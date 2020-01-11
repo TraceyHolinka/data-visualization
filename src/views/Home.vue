@@ -1,18 +1,35 @@
+<script>
+import D3Logo from '../components/D3Logo'
+
+export default {
+  name: 'Home',
+  components: {
+    D3Logo
+  }
+}
+</script>
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <img
+      class="vue"
+      src="../assets/logo.png"
+    />
+    <D3Logo class="d3" />
   </div>
 </template>
 
-<script>
-// @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
-
-export default {
-  name: "home",
-  components: {
-    HelloWorld
-  }
-};
-</script>
+<style>
+.home {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  max-width: 350px;
+  margin: 0 auto;
+}
+.vue {
+  max-width: 350px;
+}
+.d3 {
+  max-width: 300px;
+}
+</style>
