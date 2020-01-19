@@ -1,11 +1,11 @@
 <script>
-  export default {
-    props: {
-      data: { type: Object, required: true },
-      height: { type: Number, required: true },
-      width: { type: Number, required: true }
-    },
-  }
+export default {
+  props: {
+    data: { type: Object, required: true },
+    height: { type: Number, required: true },
+    width: { type: Number, required: true }
+  },
+}
 </script>
 
 <template>

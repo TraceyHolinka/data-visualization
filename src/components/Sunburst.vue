@@ -1,82 +1,86 @@
 <script>
 import * as d3 from 'd3'
-import { calArc } from '../main'
+import { eventBus } from '../main'
 
 export default {
   props: {
     data: { type: Object, required: true },
-    width: { type: Number, required: true },
-    height: { type: Number, required: true },
     radius: { type: Number, required: true }
   },
   data() {
     return {
+      partition: {},
       format: d3.format(',')
     }
   },
   computed: {
-    test() {
-      return this.data.descendants()
+    descendants() {
+      return this.data.descendants().filter(d => d.depth)
+    },
+    labels() {
+      return this.descendants.filter(d => d.depth && (d.y0 + d.y1) / 2 * (d.x1 - d.x0) > 15)
+    },
+    regions() {
+      return this.descendants.filter(d => d.depth === 1)
+    },
+    colors() {
+      return d3.quantize(d3.interpolateSpectral, this.data.children.length)
+    },
+    colorKey() {
+      let i = 0
+      let colorKey = new Map
+      for (const region of this.regions) {
+        colorKey.set(region.data.key, this.colors[i])
+        i++
+      }
+      return colorKey
     }
   },
-  mounted() {
-    // this.drawVisualization()
-  },
   methods: {
+    openTooltip(item, event) {
+      const label = 'Population: '
+      eventBus.$emit('openTooltip', { item, event, label })
+    },
+    closeTooltip(event) {
+      eventBus.$emit('closeTooltip', { event })
+    },
+    mouseOverChildren(item, event) {
+      this.openTooltip(item, event)
+      event.target.style.fill = 'rgba(0, 0, 0, .25)'
+      event.target.style.stroke = 'rgba(255, 255, 255, .5)'
+    },
+    mouseOutChildren(event) {
+      this.closeTooltip(event)
+      event.target.style.fill = 'rgba(0, 0, 0, 0)'
+      event.target.style.stroke = 'rgba(255, 255, 255, .25)'
+    },
     // Starburst chart is multiple donut chart: https://github.com/d3/d3-shape/blob/v1.3.7/README.md#arcs
+    arc(d) {
+      const arc = d3
+        .arc()
+        .innerRadius(d.y0)
+        .outerRadius(d.y1 - 1)
+        .startAngle(d.x0)
+        .endAngle(d.x1)
+        .padAngle(Math.min((d.x1 - d.x0) / 2, 0.005))
+        .padRadius(this.radius / 2)
+
+      return arc()
+    },
+    color(d) {
+      if (d.depth === 2) {
+        d = d.parent
+      }
+      if (d.depth === 3) {
+        d = d.parent.parent
+      }
+      const region = d.data.key
+      return this.colorKey.get(region)
+    },
     transform(d) {
       const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI
       const y = (d.y0 + d.y1) / 2
-      return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`
-    },
-    calArc(y0, y1, x0, x1, radius) {
-      return calArc(y0, y1, x0, x1, radius)
-    },
-    drawVisualization() {
-      // https://github.com/d3/d3-scale/blob/v2.2.2/README.md#ordinal-scales
-      // https://github.com/d3/d3-scale-chromatic#diverging
-      const color = d3.scaleOrdinal(d3.quantize(d3.interpolateSpectral, this.data.length))
-
-      // Starburst chart is multiple donut chart: https://github.com/d3/d3-shape/blob/v1.3.7/README.md#arcs
-      const arc = d3
-        .arc()
-        .innerRadius(d => d.y0)
-        .outerRadius(d => d.y1 - 1)
-        .startAngle(d => d.x0)
-        .endAngle(d => d.x1)
-        .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005))
-        .padRadius(this.radius / 2)
-
-      const svg = d3.select('#sunburst')
-
-      svg
-        .append('g')
-        .selectAll('path')
-        // Binds data. https://github.com/d3/d3-selection/blob/v1.4.1/README.md#selection_data
-        .data(this.data.descendants().filter(d => d.depth))
-        // Adds elemet for each data point. https://github.com/d3/d3-selection/blob/maater/README.md#selection_enter
-        .enter()
-        .append('path')
-        .attr('class', 'region')
-        .attr('d', arc)
-        .attr('fill', d => {
-          while (d.depth > 1) d = d.parent
-          return color(d.data.key)
-        })
-        .attr('fill-opacity', 0.8)
-
-      svg
-        .append('g')
-        .attr('pointer-events', 'none')
-        .attr('text-anchor', 'middle')
-        .selectAll('text')
-        .data(this.data.descendants().filter(d => d.depth && ((d.y0 + d.y1) / 2) * (d.x1 - d.x0) > 10))
-        .enter()
-        .append('text')
-        .attr('class', 'label')
-        .attr('transform', d => this.transform(d))
-        .attr('dy', '0.35em')
-        .text(d => d.data.key)
+      return `transform: rotate(${x - 90}deg) translate(${y}px,0px) rotate(${x < 180 ? 0 : 180}deg);`
     }
   }
 }
@@ -86,27 +90,44 @@ export default {
   <div class="visualization">
     <h2>Sunburst (Hover to highlight each region)</h2>
     <svg
-      id="sunburst"
       :viewBox="`-${radius}, -${radius} ${radius * 2} ${radius * 2}`"
-      :width="width"
-      :height="height"
+      :width="radius * 2"
+      :height="radius * 2"
     >
-      <g>
+      <g class="sunburst">
         <path
-          v-for="(item, i) in data.descendants()"
+          v-for="(item, i) in descendants"
           :key="i"
-          :class="item.y0"
-          :d="calArc(item.y0, item.y1, item.x0, item.x1, radius)"
+          :d="arc(item)"
+          :fill="color(item)"
+          @mouseover="openTooltip(item, $event)"
+          @mouseout="closeTooltip($event)"
         />
+      </g>
+      <g class="labels">
+        <text
+          v-for="(item, i) in labels"
+          :key="i"
+          :style="transform(item)"
+          class="label"
+        >
+          {{ item.data.key }}
+        </text>
       </g>
     </svg>
   </div>
 </template>
 
-<style module>
-@media (min-width: 768px) {
+<style>
+.sunburst {
+  opacity: 0.7;
 }
-
-@media (min-width: 960px) {
+.labels {
+  pointer-events: none;
+  text-anchor: middle;
+}
+.label {
+  fill: rgba(0, 0, 0, 0.9);
+  font-size: 10px;
 }
 </style>

@@ -15,27 +15,27 @@ export default {
       items: [
         {
           name: 'Item 1',
-          amount: 5,
+          amount: 5
         },
         {
           name: 'Item 2',
-          amount: 6,
+          amount: 6
         },
         {
           name: 'Item 3',
-          amount: 7,
+          amount: 7
         },
         {
           name: 'Item 4',
-          amount: 8,
+          amount: 8
         },
         {
           name: 'Item 5',
-          amount: 9,
+          amount: 9
         },
         {
           name: 'Item 6',
-          amount: 10,
+          amount: 10
         }
       ],
       height: 500,
@@ -107,7 +107,7 @@ export default {
           return 'Sunburst'
       }
       return ''
-    },
+    }
   }
 }
 </script>

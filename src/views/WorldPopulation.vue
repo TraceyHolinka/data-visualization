@@ -4,13 +4,15 @@ import DiagramSelect from '../components/DiagramSelect'
 import ToolTip from '../components/ToolTip'
 import CirclePack from '../components/CirclePack'
 import TreeMap from '../components/TreeMap'
+import Sunburst from '../components/Sunburst'
 
 export default {
   components: {
     DiagramSelect,
     ToolTip,
     CirclePack,
-    TreeMap
+    TreeMap,
+    Sunburst
   },
   data() {
     return {
@@ -25,12 +27,16 @@ export default {
         {
           label: 'Treemap',
           value: 'treemap'
+        },
+        {
+          label: 'Sunburst',
+          value: 'sunburst'
         }
       ],
-      selected: 'pack',
+      selected: 'sunburst',
       height: 600,
       width: 600,
-      radius: 300
+      radius: 400 // sunburst
     }
   },
   computed: {
@@ -38,9 +44,23 @@ export default {
       let h = d3.hierarchy(this.nestedData, v => v.values)
       // Totals are used for regions and country dimensions
       h.sum(v => v.value)
-      h.sort((a, b) => d3.ascending(a.value, b.value))
+      h.sort((a, b) => d3.ascending(a, b))
 
       return h
+    },
+    partition(){
+      // https://github.com/d3/d3-hierarchy/blob/master/README.md#partition
+      /*
+      partition adds:
+      node.x0 - the left edge of the rectangle
+      node.y0 - the top edge of the rectangle
+      node.x1 - the right edge of the rectangle
+      node.y1 - the bottom edge of the rectangle
+      */
+      let h = d3.hierarchy(this.nestedData, v => v.values)
+      h.sum(v => v.value)
+      h.sort((a, b) => d3.ascending(a.value, b.value))
+      return this.partitionLayout(h)
     },
     treemap(){
       return this.treemapLayout(this.h)
@@ -61,6 +81,11 @@ export default {
         n.key(node => node[v])
       })
       return n
+    },
+    partitionLayout(){
+      return d3
+        .partition()
+        .size([2 * Math.PI, this.radius])
     },
     treemapLayout(){
       return d3
@@ -97,6 +122,10 @@ export default {
     <TreeMap
       v-if="selected==='treemap'"
       v-bind="{ data: treemap, width, height }"
+    />
+    <Sunburst
+      v-if="selected==='sunburst'"
+      v-bind="{ data: partition, radius }"
     />
   </div>
 </template>
