@@ -23,12 +23,12 @@ export default {
     mouseOverChildren(item, event) {
       this.openTooltip(item, event)
       event.target.style.fill = 'rgba(0, 0, 0, .25)'
-      event.target.style.stroke = 'rgba(255, 255, 255, .5)'
+      event.target.style.stroke = 'rgba(255, 255, 255, .75)'
     },
     mouseOutChildren(event) {
       this.closeTooltip(event)
       event.target.style.fill = 'rgba(0, 0, 0, 0)'
-      event.target.style.stroke = 'rgba(255, 255, 255, .25)'
+      event.target.style.stroke = 'rgba(255, 255, 255, .5)'
     }
   }
 }
@@ -45,18 +45,17 @@ export default {
       <circle
         v-for="(item, i) in parents"
         :key="`c${i}`"
-        class="parent"
         :r="item.r"
         :cx="item.x"
         :cy="item.y"
-        :fill="`hsl(${(360 / parents.length) * i}, 70%, 50%)`"
+        :fill="item.color"
         @mouseover="openTooltip(item, $event)"
         @mouseout="closeTooltip($event)"
       />
       <circle
         v-for="(item, i) in data.descendants().filter(d => d.depth >= 2)"
         :key="`s${i}`"
-        class="child"
+        :class="$style.child"
         :r="item.r"
         :cx="item.x"
         :cy="item.y"
@@ -67,9 +66,9 @@ export default {
   </div>
 </template>
 
-<style>
-.circle-pack .child {
+<style module>
+.child {
   fill: rgba(0, 0, 0, 0);
-  stroke: rgba(255, 255, 255, 0.25);
+  stroke: rgba(255, 255, 255, 0.5);
 }
 </style>

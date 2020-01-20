@@ -2,7 +2,7 @@
   <div id="app">
     <div class="nav">
       <RouterLink to="/">Home</RouterLink> |
-      <RouterLink to="/simple-hierarchy">Simple Hierarchy</RouterLink> |
+      <RouterLink to="/simple-reactivity">Simple Reactivity</RouterLink> |
       <RouterLink to="/world-population">World Population</RouterLink>
     </div>
     <router-view/>

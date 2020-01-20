@@ -17,7 +17,6 @@ export default {
   data() {
     return {
       data: [],
-      hierarchy:{},
       groupOrder: ['region', 'subregion'],
       select: [
         {
@@ -33,22 +32,34 @@ export default {
           value: 'sunburst'
         }
       ],
-      selected: 'sunburst',
+      selected: 'pack',
       height: 600,
       width: 600,
       radius: 400 // sunburst
     }
   },
   computed: {
-    h(){
+    colors() {
+      return d3.quantize(d3.interpolateCool, this.nestedData.values.length)
+    },
+    hierarchy() {
+      let i = -1
+      let colors = this.colors
       let h = d3.hierarchy(this.nestedData, v => v.values)
       // Totals are used for regions and country dimensions
       h.sum(v => v.value)
       h.sort((a, b) => d3.ascending(a, b))
 
-      return h
+      // https://github.com/d3/d3-hierarchy/blob/v1.1.9/README.md#node_each
+      return h.each(function(d) {
+        if (d.depth === 1) {
+          d.color = colors[i]
+        }
+        i++
+      })
     },
-    partition(){
+    // `hsl(${(360 / count) * i}, 70%, 50%)`
+    partition() {
       // https://github.com/d3/d3-hierarchy/blob/master/README.md#partition
       /*
       partition adds:
@@ -57,16 +68,24 @@ export default {
       node.x1 - the right edge of the rectangle
       node.y1 - the bottom edge of the rectangle
       */
+      let i = -1
+      let colors = this.colors
       let h = d3.hierarchy(this.nestedData, v => v.values)
       h.sum(v => v.value)
       h.sort((a, b) => d3.ascending(a.value, b.value))
+      h.each(function(d) {
+        if (d.depth === 1) {
+          d.color = colors[i]
+        }
+        i++
+      })
       return this.partitionLayout(h)
     },
-    treemap(){
-      return this.treemapLayout(this.h)
+    treemap() {
+      return this.treemapLayout(this.hierarchy)
     },
-    pack(){
-      return this.packLayout(this.h)
+    pack() {
+      return this.packLayout(this.hierarchy)
     },
     nestedData() {
       return {
@@ -82,15 +101,11 @@ export default {
       })
       return n
     },
-    partitionLayout(){
-      return d3
-        .partition()
-        .size([2 * Math.PI, this.radius])
+    partitionLayout() {
+      return d3.partition().size([2 * Math.PI, this.radius])
     },
-    treemapLayout(){
-      return d3
-        .treemap()
-        .size([this.width, this.height])
+    treemapLayout() {
+      return d3.treemap().size([this.width, this.height])
     },
     packLayout() {
       return d3
@@ -108,30 +123,30 @@ export default {
 </script>
 
 <template>
-  <div class="world-population">
-    <ToolTip/>
+  <div :class="$style.population">
+    <ToolTip />
     <h1>World Population</h1>
     <DiagramSelect
       v-model="selected"
       v-bind="{ select }"
     />
     <CirclePack
-      v-if="selected==='pack'"
+      v-if="selected === 'pack'"
       v-bind="{ data: pack, width, height }"
     />
     <TreeMap
-      v-if="selected==='treemap'"
+      v-if="selected === 'treemap'"
       v-bind="{ data: treemap, width, height }"
     />
     <Sunburst
-      v-if="selected==='sunburst'"
+      v-if="selected === 'sunburst'"
       v-bind="{ data: partition, radius }"
     />
   </div>
 </template>
 
-<style>
-.world-population {
+<style module>
+.population {
   max-width: 950px;
   margin: 0 auto;
   display: flex;

@@ -9,7 +9,6 @@ export default {
   },
   data() {
     return {
-      partition: {},
       format: d3.format(',')
     }
   },
@@ -18,18 +17,17 @@ export default {
       return this.data.descendants().filter(d => d.depth)
     },
     labels() {
-      return this.descendants.filter(d => d.depth && (d.y0 + d.y1) / 2 * (d.x1 - d.x0) > 15)
-    },
-    regions() {
-      return this.descendants.filter(d => d.depth === 1)
+      return this.descendants.filter(d => d.depth && (d.y0 + d.y1) / 2 * (d.x1 - d.x0) > 50)
     },
     colors() {
       return d3.quantize(d3.interpolateSpectral, this.data.children.length)
     },
     colorKey() {
+      const regions = this.descendants.filter(d => d.depth === 1)
+
       let i = 0
       let colorKey = new Map
-      for (const region of this.regions) {
+      for (const region of regions) {
         colorKey.set(region.data.key, this.colors[i])
         i++
       }
@@ -87,29 +85,30 @@ export default {
 </script>
 
 <template>
-  <div class="visualization">
+  <div>
     <h2>Sunburst (Hover to highlight each region)</h2>
     <svg
       :viewBox="`-${radius}, -${radius} ${radius * 2} ${radius * 2}`"
       :width="radius * 2"
       :height="radius * 2"
     >
-      <g class="sunburst">
+      <g>
         <path
           v-for="(item, i) in descendants"
           :key="i"
           :d="arc(item)"
           :fill="color(item)"
+          :class="$style.item"
           @mouseover="openTooltip(item, $event)"
           @mouseout="closeTooltip($event)"
         />
       </g>
-      <g class="labels">
+      <g>
         <text
           v-for="(item, i) in labels"
           :key="i"
           :style="transform(item)"
-          class="label"
+          :class="$style.label"
         >
           {{ item.data.key }}
         </text>
@@ -118,16 +117,14 @@ export default {
   </div>
 </template>
 
-<style>
-.sunburst {
-  opacity: 0.7;
-}
-.labels {
-  pointer-events: none;
-  text-anchor: middle;
+<style module>
+.item {
+  opacity: 0.75;
 }
 .label {
-  fill: rgba(0, 0, 0, 0.9);
-  font-size: 10px;
+  fill: rgba(0, 0, 0, 0.75);
+  font-size: 11px;
+  pointer-events: none;
+  text-anchor: middle;
 }
 </style>

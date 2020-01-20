@@ -8,7 +8,7 @@ export default {
 </script>
 
 <template>
-  <label class="selectLabel">
+  <label :class="$style.selectLabel">
     Diagram Type:
     <select
       v-bind="{ value }"
@@ -25,7 +25,7 @@ export default {
   </label>
 </template>
 
-<style>
+<style module>
 .selectLabel {
   display: block;
   margin: 16px 0;

@@ -1,14 +1,17 @@
 <script>
 import { hierarchy, pack, treemap } from 'd3-hierarchy'
+import { pie } from 'd3-shape'
 import DiagramSelect from '../components/DiagramSelect'
 import SimpleCirclePack from '../components/SimpleCirclePack'
 import SimpleTreemap from '../components/SimpleTreemap'
+import SimplePie from '../components/SimplePie'
 
 export default {
   components: {
     SimpleTreemap,
     DiagramSelect,
-    SimpleCirclePack
+    SimpleCirclePack,
+    SimplePie
   },
   data() {
     return {
@@ -50,6 +53,10 @@ export default {
         {
           label: 'Treemap',
           value: 'treemap'
+        },
+        {
+          label: 'Pie Chart',
+          value: 'pie'
         }
       ]
     }
@@ -58,14 +65,22 @@ export default {
     nestedData() {
       return {
         name: 'root',
-        children: this.items
+        children: this.h
       }
     },
-    hierarchy(){
+    h() {
+      let h = this.items
+      // add color key
+      h.forEach((x, i) => (x.color = `hsl(${(360 / this.items.length) * i}, 70%, 50%)`))
+      return h
+    },
+    hierarchy() {
       // https://github.com/d3/d3-hierarchy/blob/v1.1.9/README.md#hierarchy
       const h = hierarchy(this.nestedData)
         .sum(v => v.amount)
-        .sort((a, b) => { return b.value - a.value })
+        .sort((a, b) => {
+          return b.value - a.value
+        })
 
       // https://github.com/d3/d3-hierarchy/blob/master/README.md#treemap
       /*
@@ -88,9 +103,21 @@ export default {
 
       return h
     },
-    treemapLayout(){
-      return treemap()
-        .size([this.width, this.height])
+    pieData() {
+      const h = hierarchy(this.nestedData)
+        .sum(v => v.amount)
+        .sort((a, b) => {
+          return b.value - a.value
+        })
+      return this.pieLayout(h.children)
+    },
+    pieLayout() {
+      return pie()
+        .sort(null)
+        .value(d => d.value)
+    },
+    treemapLayout() {
+      return treemap().size([this.width, this.height])
     },
     packLayout() {
       return pack()
@@ -103,8 +130,8 @@ export default {
           return 'Circle Pack'
         case 'treemap':
           return 'Treemap'
-        case 'sunburst':
-          return 'Sunburst'
+        case 'pie':
+          return 'Pie Chart'
       }
       return ''
     }
@@ -113,68 +140,78 @@ export default {
 </script>
 
 <template>
-  <div class="container">
-    <h1>{{ diagramType }} Diagram</h1>
-    <DiagramSelect v-model="selected" v-bind="{ select }"/>
+  <div :class="$style.container">
+    <h1>
+      {{ diagramType }} Diagram
+    </h1>
+    <DiagramSelect
+      v-model="selected"
+      v-bind="{ select }"
+    />
 
     <SimpleCirclePack
-      v-if="selected==='pack'"
+      v-if="selected === 'pack'"
       v-bind="{ data: hierarchy, width, height }"
     />
     <SimpleTreemap
-      v-if="selected==='treemap'"
+      v-if="selected === 'treemap'"
       v-bind="{ data: hierarchy, width, height }"
     />
+    <SimplePie
+      v-if="selected === 'pie'"
+      v-bind="{ data: pieData, radius }"
+    />
 
-    <div class="controls">
+    <div :class="$style.controls">
       <div
         v-for="(item, i) in items"
         :key="i"
-        class="control"
+        :class="$style.control"
       >
         <label
-          class="label"
-          :style="{color: `hsl(${(360 / hierarchy.children.length) * i}, 70%, 50%)`}">
+          :class="$style.label"
+          :style="`color: ${item.color}`"
+        >
           {{ item.name }}
           <input
             v-model="item.amount"
-            class="input"
+            :class="$style.input"
             type="number"
             step="5"
             min="5"
-          >
+          />
         </label>
       </div>
     </div>
   </div>
 </template>
 
-<style>
-  .container {
-    max-width: 950px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    font-family: Arial, sans-serif;
-  }
-  .controls {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-  }
-  .control {
-    display: flex;
-    flex-direction: column;
-    margin: 0 4px;
-  }
-  .label {
-    font-size: 14px;
-    font-weight: bold;
-  }
-  .input {
-    display: block;
-    width: 70px;
-    margin-top: 6px;
-    text-align: center;
-  }
+<style module>
+.container {
+  max-width: 950px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  font-family: Arial, sans-serif;
+}
+.controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.control {
+  display: flex;
+  flex-direction: column;
+  margin: 0 4px;
+}
+.label {
+  font-size: 14px;
+  font-weight: bold;
+}
+.input {
+  display: block;
+  width: 70px;
+  margin-top: 6px;
+  text-align: center;
+}
 </style>

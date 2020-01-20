@@ -1,5 +1,6 @@
 <script>
 import { eventBus } from '../main'
+import * as d3 from 'd3'
 
 export default {
   props: {
@@ -13,6 +14,9 @@ export default {
     },
     children() {
       return this.data.descendants().filter(d => d.depth > 2)
+    },
+    colors() {
+      return d3.quantize(d3.interpolateSpectral, this.parents.length)
     }
   },
   methods: {
@@ -25,7 +29,7 @@ export default {
     closeTooltip(event) {
       eventBus.$emit('closeTooltip', { event })
       event.target.style.fill = 'rgba(0, 0, 0, 0)'
-      event.target.style.stroke = 'rgba(255, 255, 255, .25)'
+      event.target.style.stroke = 'rgba(255, 255, 255, .3)'
     }
   }
 }
@@ -42,17 +46,16 @@ export default {
       <rect
         v-for="(item, i) in parents"
         :key="`p${i}`"
-        class="parent"
         :x="item.x0"
         :y="item.y0"
         :width="(item.x1 - item.x0)"
         :height="(item.y1 - item.y0)"
-        :fill="`hsl(${(360 / parents.length) * i}, 70%, 50%)`"
+        :fill="colors[i]"
       />
       <rect
         v-for="(item, i) in children"
         :key="`c${i}`"
-        class="child"
+        :class="$style.child"
         :x="item.x0"
         :y="item.y0"
         :width="(item.x1 - item.x0)"
@@ -64,9 +67,9 @@ export default {
   </div>
 </template>
 
-<style>
+<style module>
 .child {
   fill: transparent;
-  stroke: rgba(255, 255, 255, 0.25);
+  stroke: rgba(255, 255, 255, 0.3);
 }
 </style>

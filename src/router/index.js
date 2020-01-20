@@ -11,9 +11,9 @@ const routes = [
     component: Home
   },
   {
-    path: '/simple-hierarchy',
-    name: '/simple-hierarchy',
-    component: () => import('../views/SimpleHierarchy')
+    path: '/simple-reactivity',
+    name: '/simple-reactivity',
+    component: () => import('../views/SimpleReactivity')
   },
   {
     path: '/world-population',

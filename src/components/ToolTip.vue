@@ -1,6 +1,6 @@
 <script>
-  import * as d3 from 'd3'
-  import { eventBus } from '../main'
+import * as d3 from 'd3'
+import { eventBus } from '../main'
 
 export default {
   data(){
@@ -25,7 +25,7 @@ export default {
   },
   methods: {
     openTooltip() {
-      const tooltip = d3.select('.tooltip')
+      const tooltip = d3.select('#tooltip')
       const format = d3.format(",");
 
       tooltip
@@ -48,7 +48,7 @@ export default {
     },
     closeTooltip() {
       d3
-        .select('.tooltip')
+        .select('#tooltip')
         .style('opacity', 0)
     }
   }
@@ -78,7 +78,9 @@ export default {
   box-shadow: 0 1px 5px rgba(51, 51, 51, 0.5);
   padding: 1rem;
 }
-.tooltip div {
+.tt-parent,
+.tt-current,
+.tt-value {
   margin: 0;
 }
 .tt-parent,
