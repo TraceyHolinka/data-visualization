@@ -1,17 +1,14 @@
 <script>
 import { hierarchy, pack, treemap } from 'd3-hierarchy'
-import { pie } from 'd3-shape'
 import DiagramSelect from '../components/DiagramSelect'
 import SimpleCirclePack from '../components/SimpleCirclePack'
 import SimpleTreemap from '../components/SimpleTreemap'
-import SimplePie from '../components/SimplePie'
 
 export default {
   components: {
     SimpleTreemap,
     DiagramSelect,
-    SimpleCirclePack,
-    SimplePie
+    SimpleCirclePack
   },
   data() {
     return {
@@ -53,10 +50,6 @@ export default {
         {
           label: 'Treemap',
           value: 'treemap'
-        },
-        {
-          label: 'Pie Chart',
-          value: 'pie'
         }
       ]
     }
@@ -78,9 +71,6 @@ export default {
       // https://github.com/d3/d3-hierarchy/blob/v1.1.9/README.md#hierarchy
       const h = hierarchy(this.nestedData)
         .sum(v => v.amount)
-        .sort((a, b) => {
-          return b.value - a.value
-        })
 
       // https://github.com/d3/d3-hierarchy/blob/master/README.md#treemap
       /*
@@ -103,19 +93,6 @@ export default {
 
       return h
     },
-    pieData() {
-      const h = hierarchy(this.nestedData)
-        .sum(v => v.amount)
-        .sort((a, b) => {
-          return b.value - a.value
-        })
-      return this.pieLayout(h.children)
-    },
-    pieLayout() {
-      return pie()
-        .sort(null)
-        .value(d => d.value)
-    },
     treemapLayout() {
       return treemap().size([this.width, this.height])
     },
@@ -130,8 +107,6 @@ export default {
           return 'Circle Pack'
         case 'treemap':
           return 'Treemap'
-        case 'pie':
-          return 'Pie Chart'
       }
       return ''
     }
@@ -147,8 +122,9 @@ export default {
     <DiagramSelect
       v-model="selected"
       v-bind="{ select }"
-    />
-
+    >
+      Diagram Type:
+    </DiagramSelect>
     <SimpleCirclePack
       v-if="selected === 'pack'"
       v-bind="{ data: hierarchy, width, height }"
@@ -156,10 +132,6 @@ export default {
     <SimpleTreemap
       v-if="selected === 'treemap'"
       v-bind="{ data: hierarchy, width, height }"
-    />
-    <SimplePie
-      v-if="selected === 'pie'"
-      v-bind="{ data: pieData, radius }"
     />
 
     <div :class="$style.controls">

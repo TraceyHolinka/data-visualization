@@ -9,7 +9,7 @@ export default {
 
 <template>
   <label :class="$style.selectLabel">
-    Diagram Type:
+    <slot/>
     <select
       v-bind="{ value }"
       @change="$emit('input', $event.target.value)"

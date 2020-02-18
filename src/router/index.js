@@ -19,6 +19,16 @@ const routes = [
     path: '/world-population',
     name: 'world-population',
     component: () => import('../views/WorldPopulation')
+  },
+  {
+    path: '/world-population-multiple-years',
+    name: 'world-population-multiple-years',
+    component: () => import('../views/WorldPopulationMultipleYears')
+  },
+  {
+    path: '/simple-time-scale',
+    name: 'simple-time-scale',
+    component: () => import('../views/SimpleTimeScale')
   }
 ]
 

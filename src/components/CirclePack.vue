@@ -13,8 +13,13 @@ export default {
     }
   },
   methods: {
-    openTooltip(item, event) {
+    openTooltip(h, event) {
       const label = 'Population: '
+      const item = {
+        parent: h.parent.data.key,
+        current: h.data.country || h.data.key,
+        value: h.value
+      }
       eventBus.$emit('openTooltip', { item, event, label })
     },
     closeTooltip(event) {
@@ -42,26 +47,31 @@ export default {
       :width="width"
       :height="height"
     >
-      <circle
+      <g
         v-for="(item, i) in parents"
         :key="`c${i}`"
-        :r="item.r"
-        :cx="item.x"
-        :cy="item.y"
-        :fill="item.color"
-        @mouseover="openTooltip(item, $event)"
-        @mouseout="closeTooltip($event)"
-      />
-      <circle
+        :class="$style.parent"
+        :style="{transform: `translate(${item.x}px, ${item.y}px)`}"
+      >
+        <circle
+          :r="item.r"
+          :fill="item.color"
+          @mouseover="openTooltip(item, $event)"
+          @mouseout="closeTooltip($event)"
+        />
+      </g>
+      <g
         v-for="(item, i) in data.descendants().filter(d => d.depth >= 2)"
         :key="`s${i}`"
         :class="$style.child"
-        :r="item.r"
-        :cx="item.x"
-        :cy="item.y"
-        @mouseover="mouseOverChildren(item, $event)"
-        @mouseout="mouseOutChildren($event)"
-      />
+        :style="{transform: `translate(${item.x}px, ${item.y}px)`}"
+      >
+        <circle
+          :r="item.r"
+          @mouseover="mouseOverChildren(item, $event)"
+          @mouseout="mouseOutChildren($event)"
+        />
+      </g>
     </svg>
   </div>
 </template>
@@ -70,5 +80,9 @@ export default {
 .child {
   fill: rgba(0, 0, 0, 0);
   stroke: rgba(255, 255, 255, 0.5);
+}
+.parent,
+.child {
+  transition: transform 0.2s ease-in;
 }
 </style>

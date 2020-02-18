@@ -3,7 +3,9 @@
     <div class="nav">
       <RouterLink to="/">Home</RouterLink> |
       <RouterLink to="/simple-reactivity">Simple Reactivity</RouterLink> |
-      <RouterLink to="/world-population">World Population</RouterLink>
+      <RouterLink to="/world-population">World Population</RouterLink> |
+      <RouterLink to="/simple-time-scale">Simple Time Scale</RouterLink> |
+      <RouterLink to="/world-population-multiple-years">World Population Multiple Years</RouterLink>
     </div>
     <router-view/>
   </div>

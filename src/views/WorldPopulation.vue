@@ -58,7 +58,6 @@ export default {
         i++
       })
     },
-    // `hsl(${(360 / count) * i}, 70%, 50%)`
     partition() {
       // https://github.com/d3/d3-hierarchy/blob/master/README.md#partition
       /*
@@ -129,7 +128,9 @@ export default {
     <DiagramSelect
       v-model="selected"
       v-bind="{ select }"
-    />
+    >
+      Diagram Type:
+    </DiagramSelect>
     <CirclePack
       v-if="selected === 'pack'"
       v-bind="{ data: pack, width, height }"

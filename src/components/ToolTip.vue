@@ -30,10 +30,10 @@ export default {
 
       tooltip
         .select('.tt-parent')
-        .text(this.item.parent.data.key)
+        .text(this.item.parent)
       tooltip
         .select('.tt-current')
-        .text(this.item.data.key)
+        .text(this.item.current)
       tooltip
         .select('.tt-value')
         .text(`${this.label}${format(this.item.value)}`)
