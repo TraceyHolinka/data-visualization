@@ -35,8 +35,13 @@ export default {
     }
   },
   methods: {
-    openTooltip(item, event) {
+    openTooltip(h, event) {
       const label = 'Population: '
+      const item = {
+        parent: h.parent.data.key,
+        current: h.data.country || h.data.key,
+        value: h.value
+      }
       eventBus.$emit('openTooltip', { item, event, label })
     },
     closeTooltip(event) {

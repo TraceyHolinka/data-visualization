@@ -107,7 +107,7 @@ export default {
     >
       Year:
     </DiagramSelect>
-    <SimpleCirclePack v-bind="{ data: hierarchy, width, height }"/>
+    <SimpleCirclePack v-bind="{ data: hierarchy, width, height }" />
   </div>
 </template>
 

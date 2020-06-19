@@ -9,7 +9,7 @@ export default {
 
 <template>
   <label :class="$style.selectLabel">
-    <slot/>
+    <slot />
     <select
       v-bind="{ value }"
       @change="$emit('input', $event.target.value)"
@@ -19,7 +19,7 @@ export default {
         :key="i"
         :value="option.value"
       >
-        {{option.label}}
+        {{ option.label }}
       </option>
     </select>
   </label>

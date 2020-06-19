@@ -20,8 +20,13 @@ export default {
     }
   },
   methods: {
-    openTooltip(item, event) {
+    openTooltip(h, event) {
       const label = 'Population: '
+      const item = {
+        parent: h.parent.data.key,
+        current: h.data.country || h.data.key,
+        value: h.value
+      }
       eventBus.$emit('openTooltip', { item, event, label })
       event.target.style.fill = 'rgba(0, 0, 0, .25)'
       event.target.style.stroke = 'rgba(255, 255, 255, .5)'

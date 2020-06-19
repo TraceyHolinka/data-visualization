@@ -7,7 +7,7 @@
       <RouterLink to="/simple-time-scale">Simple Time Scale</RouterLink> |
       <RouterLink to="/world-population-multiple-years">World Population Multiple Years</RouterLink>
     </div>
-    <router-view/>
+    <router-view />
   </div>
 </template>
 

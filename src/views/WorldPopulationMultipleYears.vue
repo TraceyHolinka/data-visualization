@@ -88,8 +88,7 @@ export default {
     </DiagramSelect>
     <ToolTip />
     <h1>Recent World Population (by years)</h1>
-    <CirclePack v-bind="{ data: pack, width, height }"
-    />
+    <CirclePack v-bind="{ data: pack, width, height }" />
   </div>
 </template>
 

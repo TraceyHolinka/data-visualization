@@ -1,14 +1,15 @@
 <script>
 import { hierarchy, pack, treemap } from 'd3-hierarchy'
+import { pie } from 'd3-shape'
 import DiagramSelect from '../components/DiagramSelect'
 import SimpleCirclePack from '../components/SimpleCirclePack'
 import SimpleTreemap from '../components/SimpleTreemap'
 
 export default {
   components: {
-    SimpleTreemap,
     DiagramSelect,
-    SimpleCirclePack
+    SimpleCirclePack,
+    SimpleTreemap
   },
   data() {
     return {
