@@ -24,10 +24,10 @@ export default {
       <circle
         class="circle"
         :r="item.r"
-        :fill="item.data.color"
+        :fill="item.data[1][0].color"
       />
       <text :class="$style.text">
-        {{ item.data.name }}
+        {{ item.data[1][0].name }}
       </text>
     </g>
   </svg>

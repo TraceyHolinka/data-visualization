@@ -1,7 +1,5 @@
 <script>
-import { hierarchy, pack, treemap } from 'd3-hierarchy'
-import { pie } from 'd3-shape'
-import DiagramSelect from '../components/DiagramSelect'
+import DiagramSelect from '../components/Select'
 import SimpleCirclePack from '../components/SimpleCirclePack'
 import SimpleTreemap from '../components/SimpleTreemap'
 
@@ -24,7 +22,7 @@ export default {
         },
         {
           name: 'Item 3',
-          amount: 7
+          amount: 5
         },
         {
           name: 'Item 4',
@@ -56,23 +54,27 @@ export default {
     }
   },
   computed: {
-    nestedData() {
-      return {
-        name: 'root',
-        children: this.h
-      }
-    },
-    h() {
-      let h = this.items
+    d() {
+      const d = this.items
       // add color key
-      h.forEach((x, i) => (x.color = `hsl(${(360 / this.items.length) * i}, 70%, 50%)`))
-      return h
+      d.forEach((x, i) => (x.color = `hsl(${(360 / this.items.length) * i}, 70%, 50%)`))
+      return d
     },
-    hierarchy() {
-      // https://github.com/d3/d3-hierarchy/blob/v1.1.9/README.md#hierarchy
-      const h = hierarchy(this.nestedData)
-        .sum(v => v.amount)
+    pack() {
+      // https://github.com/d3/d3-hierarchy/blob/master/README.md#pack
+      /*
+      pack adds:
+      node.x - the x-coordinate of the circle’s center
+      node.y - the y-coordinate of the circle’s center
+      node.r - the radius of the circle
+      */
 
+      let h = this.$d3.group(this.d, v => v.name)
+      h = this.$d3.hierarchy(h).sum(v => v.amount)
+
+      return this.packLayout(h)
+    },
+    tree(){
       // https://github.com/d3/d3-hierarchy/blob/master/README.md#treemap
       /*
       treemap adds:
@@ -81,26 +83,17 @@ export default {
       node.x1 - the right edge of the rectangle
       node.y1 - the bottom edge of the rectangle
       */
-      this.treemapLayout(h)
 
-      // https://github.com/d3/d3-hierarchy/blob/master/README.md#pack
-      /*
-      pack adds:
-      node.x - the x-coordinate of the circle’s center
-      node.y - the y-coordinate of the circle’s center
-      node.r - the radius of the circle
-       */
-      this.packLayout(h)
+      let h = this.$d3.group(this.d, v => v.name)
+      h = this.$d3.hierarchy(h).sum(v => v.amount)
 
-      return h
+      return this.treemapLayout(h)
     },
     treemapLayout() {
-      return treemap().size([this.width, this.height])
+      return this.$d3.treemap().size([this.width, this.height])
     },
     packLayout() {
-      return pack()
-        .size([this.width, this.height])
-        .padding(1)
+      return this.$d3.pack().size([this.width, this.height]).padding(1)
     },
     diagramType() {
       switch (this.selected) {
@@ -128,11 +121,11 @@ export default {
     </DiagramSelect>
     <SimpleCirclePack
       v-if="selected === 'pack'"
-      v-bind="{ data: hierarchy, width, height }"
+      v-bind="{ data: pack, width, height }"
     />
     <SimpleTreemap
       v-if="selected === 'treemap'"
-      v-bind="{ data: hierarchy, width, height }"
+      v-bind="{ data: tree, width, height }"
     />
 
     <div :class="$style.controls">

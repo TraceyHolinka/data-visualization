@@ -8,7 +8,7 @@ export default {
 </script>
 
 <template>
-  <label :class="$style.selectLabel">
+  <label :class="$style.label">
     <slot />
     <select
       v-bind="{ value }"
@@ -26,7 +26,7 @@ export default {
 </template>
 
 <style module>
-.selectLabel {
+.label {
   display: block;
   margin: 16px 0;
 }

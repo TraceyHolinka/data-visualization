@@ -24,13 +24,13 @@ export default {
         :class="$style.rect"
         :width="(item.x1 - item.x0)"
         :height="(item.y1 - item.y0)"
-        :fill="item.data.color"
+        :fill="item.data[1][0].color"
       />
       <text
         :class="$style.label"
         :style="{transform: `translate(${(item.x1 - item.x0)/2}px, ${(item.y1 - item.y0)/2}px)`}"
       >
-        {{ item.data.name }}
+        {{ item.data[1][0].name }}
       </text>
     </g>
   </svg>

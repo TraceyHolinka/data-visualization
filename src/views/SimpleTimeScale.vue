@@ -1,31 +1,42 @@
 <script>
-import { hierarchy, pack } from 'd3-hierarchy'
+import Select from '../components/Select'
 import SimpleCirclePack from '../components/SimpleCirclePack'
-import DiagramSelect from '../components/DiagramSelect'
+import SimpleTreemap from '../components/SimpleTreemap'
 
 export default {
   components: {
+    Select,
     SimpleCirclePack,
-    DiagramSelect
+    SimpleTreemap
   },
   data() {
     return {
-      data: [],
-      select: [
+      selectTime: [
         {
           label: '2001',
-          value: '2001'
+          value: 2001
         },
         {
           label: '2002',
-          value: '2002'
+          value: 2002
         },
         {
           label: '2003',
-          value: '2003'
+          value: 2003
         }
       ],
-      selected: '2001',
+      selectedTime: '2001',
+      selectType: [
+        {
+          label: 'Circle Pack',
+          value: 'pack'
+        },
+        {
+          label: 'Treemap',
+          value: 'treemap'
+        }
+      ],
+      selectedType: 'pack',
       items: [
         {
           name: 'Item 1',
@@ -70,29 +81,36 @@ export default {
     }
   },
   computed: {
-    nestedData() {
-      return {
-        name: 'root',
-        children: this.h
-      }
-    },
-    h() {
-      let h = this.items
+    d() {
+      const d = this.items
       // add color key
-      h.forEach((x, i) => (x.color = `hsl(${(360 / this.items.length) * i}, 70%, 50%)`))
-      return h
+      d.forEach((x, i) => (x.color = `hsl(${(360 / this.items.length) * i}, 70%, 50%)`))
+      return d
     },
-    hierarchy() {
-      const h = hierarchy(this.nestedData)
-        // build sum with dropdown selected value
-        .sum(v => v[this.selected])
-      this.packLayout(h)
-      return h
+    pack(){
+      let h = this.$d3.group(this.d, v => v.name)
+      h = this.$d3.hierarchy(h).sum(v => v[this.selectedTime])
+      return this.packLayout(h)
+    },
+    tree(){
+      let h = this.$d3.group(this.d, v => v.name)
+      h = this.$d3.hierarchy(h).sum(v => v[this.selectedTime])
+      return this.treemapLayout(h)
+    },
+    treemapLayout() {
+      return this.$d3.treemap().size([this.width, this.height])
     },
     packLayout() {
-      return pack()
-        .size([this.width, this.height])
-        .padding(1)
+      return this.$d3.pack().size([this.width, this.height]).padding(1)
+    },
+    diagramType() {
+      switch (this.selected) {
+        case 'pack':
+          return 'Circle Pack'
+        case 'treemap':
+          return 'Treemap'
+      }
+      return ''
     }
   }
 }
@@ -100,14 +118,31 @@ export default {
 
 <template>
   <div :class="$style.container">
-    <h1>Circle Pack Diagram</h1>
-    <DiagramSelect
-      v-model="selected"
-      v-bind="{ select }"
-    >
-      Year:
-    </DiagramSelect>
-    <SimpleCirclePack v-bind="{ data: hierarchy, width, height }" />
+    <h1>
+      {{ diagramType }} Diagram
+    </h1>
+    <div :class="$style.controls">
+      <Select
+        v-model="selectedType"
+        v-bind="{ select: selectType }"
+      >
+        Diagram Type:
+      </Select>
+      <Select
+        v-model="selectedTime"
+        v-bind="{ select: selectTime }"
+      >
+        Year:
+      </Select>
+    </div>
+    <SimpleCirclePack
+      v-if="selectedType === 'pack'"
+      v-bind="{ data: pack, width, height }"
+    />
+    <SimpleTreemap
+      v-if="selectedType === 'treemap'"
+      v-bind="{ data: tree, width, height }"
+    />
   </div>
 </template>
 
@@ -118,5 +153,8 @@ export default {
   display: flex;
   flex-direction: column;
   font-family: Arial, sans-serif;
+}
+.controls {
+  display: flex;
 }
 </style>

@@ -1,10 +1,11 @@
 <script>
-import * as d3 from 'd3'
-import DiagramSelect from '../components/DiagramSelect'
-import ToolTip from '../components/ToolTip'
-import CirclePack from '../components/CirclePack'
-import TreeMap from '../components/TreeMap'
-import Sunburst from '../components/Sunburst'
+import * as d3 from "d3"
+import { nest } from 'd3-collection'
+import DiagramSelect from '@/components/Select'
+import ToolTip from '@/components/ToolTip'
+import CirclePack from '@/components/CirclePack'
+import TreeMap from '@/components/TreeMap'
+import Sunburst from '@/components/Sunburst'
 
 export default {
   components: {
@@ -40,7 +41,9 @@ export default {
   },
   computed: {
     colors() {
-      return d3.quantize(d3.interpolateCool, this.nestedData.values.length)
+      return d3.scaleOrdinal(d3.schemeBlues[this.nestedData.values.length])
+      // return d3.scaleOrdinal(d3.interpolateSpectral[this.nestedData.values.length])
+      // return d3.scaleQuantize.domain(this.nestedData.values.length).range(d3.interpolateSpectral)
     },
     hierarchy() {
       let i = -1
@@ -81,10 +84,10 @@ export default {
       return this.partitionLayout(h)
     },
     treemap() {
-      return this.treemapLayout(this.hierarchy)
+      return this.treemapLayout(this.d3.hierarchy)
     },
     pack() {
-      return this.packLayout(this.hierarchy)
+      return this.packLayout(this.d3.hierarchy)
     },
     nestedData() {
       return {
@@ -92,9 +95,10 @@ export default {
         values: this.nester.entries(this.data)
       }
     },
+
     // https://github.com/d3/d3-collection/blob/v1.0.7/README.md#nest
     nester() {
-      const n = d3.nest()
+      const n = nest()
       this.groupOrder.forEach(v => {
         n.key(node => node[v])
       })
@@ -107,8 +111,7 @@ export default {
       return d3.treemap().size([this.width, this.height])
     },
     packLayout() {
-      return d3
-        .pack()
+      return d3.pack()
         .size([this.width, this.height])
         .padding(1)
     }
