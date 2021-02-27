@@ -42,7 +42,7 @@ export default {
   margin: 0 auto;
 }
 .item {
-  transition: transform 0.2s ease-in;
+  transition: transform 0.3s ease-in-out;
 }
 .label {
   fill: #fff;

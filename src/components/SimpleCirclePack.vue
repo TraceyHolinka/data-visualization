@@ -40,7 +40,7 @@ export default {
 }
 .item,
 .circle {
-  transition: transform 0.2s ease-in;
+  transition: transform 0.3s ease-in-out;
 }
 .text {
   fill: #fff;

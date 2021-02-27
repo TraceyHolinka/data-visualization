@@ -1,5 +1,5 @@
 <script>
-import { eventBus } from '../main'
+import { eventBus } from '@/main'
 
 export default {
   props: {
@@ -8,8 +8,30 @@ export default {
     height: { type: Number, required: true }
   },
   computed: {
-    parents() {
-      return this.data.descendants().filter(d => d.depth === 1)
+    maxColor() {
+      return this.data.descendants().filter(d => d.depth === 1).length
+    },
+    packLayout() {
+      return this.$d3.pack().size([this.width, this.height]).padding(1)
+    },
+    pack(){
+      let h = this.data
+      // https://github.com/d3/d3-scale-chromatic/blob/master/README.md
+      const colors = this.$d3.scaleSequential(this.$d3.interpolateCool).domain([0, this.maxColor])
+      // https://github.com/d3/d3-hierarchy/blob/v1.1.9/README.md#node_each
+      let i = -1
+
+      h.each(function(d) {
+        if (d.depth === 1) {
+          d.color = colors(i)
+        }
+        i++
+      })
+
+      return this.packLayout(h)
+    },
+    group() {
+      return this.pack.descendants().filter(d => d.depth === 1)
     }
   },
   methods: {
@@ -17,7 +39,7 @@ export default {
       const label = 'Population: '
       const item = {
         parent: h.parent.data.key,
-        current: h.data.country || h.data.key,
+        current: h.data.key || h.data[0],
         value: h.value
       }
       eventBus.$emit('openTooltip', { item, event, label })
@@ -48,9 +70,9 @@ export default {
       :height="height"
     >
       <g
-        v-for="(item, i) in parents"
+        v-for="(item, i) in group"
         :key="`c${i}`"
-        :class="$style.parent"
+        :class="$style.group"
         :style="{transform: `translate(${item.x}px, ${item.y}px)`}"
       >
         <circle
@@ -63,7 +85,7 @@ export default {
       <g
         v-for="(item, i) in data.descendants().filter(d => d.depth >= 2)"
         :key="`s${i}`"
-        :class="$style.child"
+        :class="$style.subgroup"
         :style="{transform: `translate(${item.x}px, ${item.y}px)`}"
       >
         <circle
@@ -77,12 +99,12 @@ export default {
 </template>
 
 <style module>
-.child {
+.subgroup {
   fill: rgba(0, 0, 0, 0);
   stroke: rgba(255, 255, 255, 0.5);
 }
-.parent,
-.child {
+.group,
+.subgroup {
   transition: transform 0.2s ease-in;
 }
 </style>

@@ -1,37 +1,46 @@
 <script>
-import * as d3 from 'd3'
-import { eventBus } from '../main'
+import { eventBus } from '@/main'
 
 export default {
   props: {
     data: { type: Object, required: true },
     radius: { type: Number, required: true }
   },
-  data() {
-    return {
-      format: d3.format(',')
-    }
-  },
   computed: {
-    descendants() {
-      return this.data.descendants().filter(d => d.depth)
-    },
-    labels() {
-      return this.descendants.filter(d => d.depth && (d.y0 + d.y1) / 2 * (d.x1 - d.x0) > 50)
+    maxColor() {
+      return this.data.descendants().filter(d => d.depth === 1).length
     },
     colors() {
-      return d3.quantize(d3.interpolateSpectral, this.data.children.length)
+      return this.$d3.scaleSequential(this.$d3.interpolateCool).domain([0, this.maxColor])
+    },
+    partitionLayout() {
+      return this.$d3.partition().size([2 * Math.PI, this.radius])
+    },
+    partition() {
+      // https://github.com/d3/d3-hierarchy/blob/master/README.md#partition
+      /*
+      partition adds:
+      node.x0 - the left edge of the rectangle
+      node.y0 - the top edge of the rectangle
+      node.x1 - the right edge of the rectangle
+      node.y1 - the bottom edge of the rectangle
+      */
+      let h = this.data
+      return this.partitionLayout(h).descendants().filter(d => d.depth)
     },
     colorKey() {
-      const regions = this.descendants.filter(d => d.depth === 1)
+      const regions = this.partition.filter(d => d.depth === 1)
 
       let i = 0
       let colorKey = new Map
       for (const region of regions) {
-        colorKey.set(region.data.key, this.colors[i])
+        colorKey.set(region.data[0], this.colors(i))
         i++
       }
       return colorKey
+    },
+    labels() {
+      return this.partition.filter(d => d.depth && (d.y0 + d.y1) / 2 * (d.x1 - d.x0) > 25)
     }
   },
   methods: {
@@ -39,7 +48,7 @@ export default {
       const label = 'Population: '
       const item = {
         parent: h.parent.data.key,
-        current: h.data.country || h.data.key,
+        current: h.data.key || h.data[0],
         value: h.value
       }
       eventBus.$emit('openTooltip', { item, event, label })
@@ -59,7 +68,7 @@ export default {
     },
     // Starburst chart is multiple donut chart: https://github.com/d3/d3-shape/blob/v1.3.7/README.md#arcs
     arc(d) {
-      const arc = d3
+      const arc = this.$d3
         .arc()
         .innerRadius(d.y0)
         .outerRadius(d.y1 - 1)
@@ -77,7 +86,7 @@ export default {
       if (d.depth === 3) {
         d = d.parent.parent
       }
-      const region = d.data.key
+      const region = d.data[0]
       return this.colorKey.get(region)
     },
     transform(d) {
@@ -99,7 +108,7 @@ export default {
     >
       <g>
         <path
-          v-for="(item, i) in descendants"
+          v-for="(item, i) in partition"
           :key="i"
           :d="arc(item)"
           :fill="color(item)"
@@ -115,7 +124,7 @@ export default {
           :style="transform(item)"
           :class="$style.label"
         >
-          {{ item.data.key }}
+          {{ item.data.key || item.data[0] }}
         </text>
       </g>
     </svg>
@@ -123,9 +132,6 @@ export default {
 </template>
 
 <style module>
-.item {
-  opacity: 0.75;
-}
 .label {
   fill: rgba(0, 0, 0, 0.75);
   font-size: 11px;

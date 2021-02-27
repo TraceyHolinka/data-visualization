@@ -156,5 +156,8 @@ export default {
 }
 .controls {
   display: flex;
+  justify-content: space-evenly;
+  width: 400px;
+  margin: 16px auto 0;
 }
 </style>
